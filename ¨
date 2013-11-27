@@ -1,0 +1,52 @@
+<?php
+	
+	include_once("mysql.php");
+	
+	session_start();
+	$db = mysqli_connect("localhost", "root", "FireFromFarts", "omgifs");
+	$current_gif_id;
+	$current_gif_link;
+	$current_gif_title;
+	if(isset($_POST['next'])) {
+		$current_gif_id = $_SESSION['current_gif_id'] + $_POST['next'];
+		$result = mysqli_query($db, "SELECT link_string, link_title, link_id FROM links WHERE link_id={$current_gif_id}+1") or die(mysql_error());
+		$row = mysqli_fetch_array($result);
+		$current_gif_id 		= $row['link_id'];
+		$current_gif_link 	= $row['link_string'];
+		$current_gif_title 	=	$row['link_title'];
+	} else {
+		$result = mysqli_query($db, "SELECT link_string, link_title, link_id FROM links WHERE link_id=0") or die(mysql_error());
+		$row		= mysqli_fetch_array($result) or die(mysql_error());
+		$current_gif_id = $row['link_id'];
+		$current_gif_link = $row['link_string'];
+		$current_gif_title 	=	$row['link_title'];
+	}
+	$_SESSION['current_gif_id'] = $current_gif_id;
+?>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+		<?php echo "<style type='text/css'>
+			body {
+				margin:0px; 
+				padding: 0px;
+				width:100%;  
+				height:100%;  
+				background:url('{$current_gif_link}') center center no-repeat; 	
+				background-size:contain;  
+				overflow:hidden;  
+				background-color:#121211;  
+				position:relative;  
+			}
+		</style>" ?>
+	</head>
+	<body>
+		<div id="BottomBar">	
+			<img  id="LeftArrow" class="rotated" src="omgifs_arrow.svg" onclick="previousGif()"/>
+			<div id="title">
+				<?php echo $current_gif_title;?>
+			</div>
+			<img  id="RightArrow" src="omgifs_arrow.svg" onclick="nextGif()"/>
+		</div>
+	</body>
+</html>
